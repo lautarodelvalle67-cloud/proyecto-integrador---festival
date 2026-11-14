@@ -1,0 +1,87 @@
+#include <stdio.h>
+#include "TADOrganizacion.h"
+
+/* Variable global en main como pide la consigna */
+tOrganizacion gOrganizacion;
+
+int main() {
+    int opcion;
+    FILE *archivoPrueba;
+    int indiceBanda;
+    float gananciaMerchBanda;
+    float recaudacionTotalPrueba;
+
+    inicializarOrganizacion(&gOrganizacion);
+
+    do {
+        printf("\n==============================================\n");
+        printf("     MENU DE PRUEBA - TADOrganizacion.h       \n");
+        printf("==============================================\n");
+        printf("1. Cargar catalogo de merchandising de una banda\n");
+        printf("2. Registrar ventas de merchandising (con busqueda y SOLD OUT)\n");
+        printf("3. Mostrar resumen general por consola\n");
+        printf("4. Probar generacion de informe_prueba.txt\n");
+        printf("0. Salir\n");
+        printf("Seleccione una opcion: ");
+        scanf("%d", &opcion);
+
+        switch (opcion) {
+            case 1:
+                cargarCatalogoMerchBanda(&gOrganizacion);
+                break;
+
+            case 2:
+                registrarVentasMerch(&gOrganizacion);
+                break;
+
+            case 3:
+                mostrarResumenOrganizacion(gOrganizacion);
+                break;
+
+            case 4:
+                archivoPrueba = fopen("informe_prueba.txt", "w");
+                if (archivoPrueba == NULL) {
+                    printf("\n[Error] No se pudo crear informe_prueba.txt\n");
+                } else {
+                    recaudacionTotalPrueba = 0.0;
+
+                    fprintf(archivoPrueba, "========================================\n");
+                    fprintf(archivoPrueba, "     INFORME DE PRUEBA - MERCH          \n");
+                    fprintf(archivoPrueba, "========================================\n");
+
+                    for (indiceBanda = 0; indiceBanda < gOrganizacion.cantidadBandas; indiceBanda++) {
+                        fprintf(archivoPrueba, "\nBANDA: %s\n", gOrganizacion.listaBandas[indiceBanda].nombreBanda);
+
+                        escribirSeccionMerchBanda(
+                            archivoPrueba,
+                            gOrganizacion,
+                            gOrganizacion.listaBandas[indiceBanda].nombreBanda,
+                            &gananciaMerchBanda
+                        );
+
+                        recaudacionTotalPrueba += gananciaMerchBanda;
+                        fprintf(archivoPrueba, "\nRECAUDACION TOTAL DE LA BANDA: $%.2f\n", gananciaMerchBanda);
+                        fprintf(archivoPrueba, "----------------------------------------\n");
+                    }
+
+                    fprintf(archivoPrueba, "\n========================================\n");
+                    fprintf(archivoPrueba, "RECAUDACION TOTAL DEL FESTIVAL: $%.2f\n", recaudacionTotalPrueba);
+                    fprintf(archivoPrueba, "========================================\n");
+
+                    fclose(archivoPrueba);
+                    printf("\nArchivo informe_prueba.txt generado con exito!\n");
+                }
+                break;
+
+            case 0:
+                printf("\nSaliendo del programa de prueba...\n");
+                break;
+
+            default:
+                printf("\nOpcion invalida. Intente nuevamente.\n");
+                break;
+        }
+    } while (opcion != 0);
+
+    return 0;
+}
